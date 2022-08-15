@@ -3,7 +3,7 @@ import { unstable_getServerSession } from 'next-auth';
 
 import { nextAuthOptions } from './auth';
 
-export const requireAuth =
+export const requireUnAuth =
 	(func: GetServerSideProps) => async (ctx: GetServerSidePropsContext) => {
 		const session = await unstable_getServerSession(
 			ctx.req,
@@ -11,30 +11,14 @@ export const requireAuth =
 			nextAuthOptions
 		);
 
-		if (
-			!session &&
-			!ctx.req?.url?.startsWith('/login') &&
-			!ctx.req?.url?.startsWith('/register')
-		) {
+		if (session) {
 			return {
 				redirect: {
-					destination: '/login',
+					destination: '/dashboard',
 					permanent: false,
 				},
 			};
 		}
-		// else if (
-		// 	session &&
-		// 	(ctx.req?.url?.startsWith('/login') ||
-		// 		ctx.req?.url?.startsWith('/register'))
-		// ) {
-		// 	return {
-		// 		redirect: {
-		// 			destination: '/dashboard',
-		// 			permanent: false,
-		// 		},
-		// 	};
-		// }
 
 		return await func(ctx);
 	};

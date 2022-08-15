@@ -19,7 +19,6 @@ export const nextAuthOptions: NextAuthOptions = {
 			},
 			authorize: async (credentials, request) => {
 				const creds = await loginSchema.parseAsync(credentials);
-
 				const user = await prisma.user.findFirst({
 					where: { username: creds.username },
 				});
@@ -40,6 +39,7 @@ export const nextAuthOptions: NextAuthOptions = {
 					username: user.username,
 				};
 			},
+			type: 'credentials',
 		}),
 	],
 	callbacks: {
