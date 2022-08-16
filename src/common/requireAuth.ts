@@ -11,11 +11,7 @@ export const requireAuth =
 			nextAuthOptions
 		);
 
-		if (
-			!session &&
-			!ctx.req?.url?.startsWith('/login') &&
-			!ctx.req?.url?.startsWith('/register')
-		) {
+		if (!session) {
 			return {
 				redirect: {
 					destination: '/login',
@@ -23,18 +19,6 @@ export const requireAuth =
 				},
 			};
 		}
-		// else if (
-		// 	session &&
-		// 	(ctx.req?.url?.startsWith('/login') ||
-		// 		ctx.req?.url?.startsWith('/register'))
-		// ) {
-		// 	return {
-		// 		redirect: {
-		// 			destination: '/dashboard',
-		// 			permanent: false,
-		// 		},
-		// 	};
-		// }
 
 		return await func(ctx);
 	};
