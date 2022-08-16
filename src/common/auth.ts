@@ -8,6 +8,7 @@ import { loginSchema } from './validation/auth';
 export const nextAuthOptions: NextAuthOptions = {
 	providers: [
 		Credentials({
+			id: 'credentials',
 			name: 'Credentials',
 			credentials: {
 				username: {
@@ -36,21 +37,25 @@ export const nextAuthOptions: NextAuthOptions = {
 				return {
 					id: user.id,
 					email: user.email,
-					username: user.username,
+					name: user.username,
 				};
 			},
-			type: 'credentials',
 		}),
 	],
 	callbacks: {
-		redirect: ({ url, baseUrl }) => {
-			console.log(url);
-			return url;
-		},
+		// redirect: ({ url, baseUrl }) => {
+		// 	// Allows relative callback URLs
+		// 	if (url.startsWith('/')) return `${baseUrl}${url}`;
+		// 	// Allows callback URLs on the same origin
+		// 	else if (new URL(url).origin === baseUrl) return url;
+		// 	return baseUrl;
+		// },
 		jwt: async ({ token, user }) => {
 			if (user) {
 				token.id = user.id;
 				token.email = user.email;
+				token.name = user.name;
+				// console.log('jwt', token);
 			}
 
 			return token;
@@ -58,10 +63,18 @@ export const nextAuthOptions: NextAuthOptions = {
 		session: async ({ session, token }) => {
 			if (token) {
 				session.id = token.id;
+				session.user.userId = token.id;
+				// console.log('sesion', session);
+				// console.log('token', token);
 			}
 
 			return session;
 		},
+	},
+	session: {
+		strategy: 'jwt',
+		maxAge: 15 * 24 * 30 * 60, // 15 days
+		updateAge: 0,
 	},
 	jwt: {
 		secret: 'super-secret',
