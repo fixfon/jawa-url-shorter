@@ -24,13 +24,13 @@ export const nextAuthOptions: NextAuthOptions = {
 				});
 
 				if (!user) {
-					return null;
+					throw new Error("User doesn't exist");
 				}
 
 				const isValidPassworod = await verify(user.password, creds.password);
 
 				if (!isValidPassworod) {
-					return null;
+					throw new Error('Invalid password');
 				}
 
 				return {
@@ -43,6 +43,10 @@ export const nextAuthOptions: NextAuthOptions = {
 		}),
 	],
 	callbacks: {
+		redirect: ({ url, baseUrl }) => {
+			console.log(url);
+			return url;
+		},
 		jwt: async ({ token, user }) => {
 			if (user) {
 				token.id = user.id;

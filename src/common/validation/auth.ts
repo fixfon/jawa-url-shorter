@@ -1,7 +1,7 @@
 import * as z from 'zod';
 
 export const loginSchema = z.object({
-	username: z.string(),
+	username: z.string().min(3).max(16),
 	password: z.string().min(4).max(16),
 });
 
