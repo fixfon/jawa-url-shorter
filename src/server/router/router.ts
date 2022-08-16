@@ -52,6 +52,42 @@ export const serverRouter = trpc
 			return { used: count > 0 };
 		},
 	})
+	.query('getUserSlugs', {
+		input: z.object({
+			userId: z.number(),
+		}),
+		async resolve({ input, ctx }) {
+			const slugs = await ctx.prisma.user.findMany({
+				where: {
+					id: input.userId,
+				},
+				select: {
+					shortLinkIds: true,
+				},
+			});
+			return { slugs };
+		},
+	})
+	.query('getUserSlugCount', {
+		input: z.object({
+			userId: z.number(),
+		}),
+		async resolve({ input, ctx }) {
+			const count = await ctx.prisma.user.findFirst({
+				where: {
+					id: input.userId,
+				},
+				include: {
+					_count: {
+						select: {
+							shortLinkIds: true,
+						},
+					},
+				},
+			});
+			return { slugCount: count?._count };
+		},
+	})
 	.mutation('createSlug', {
 		input: z.object({
 			slug: z.string(),
