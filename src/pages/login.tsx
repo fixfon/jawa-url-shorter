@@ -7,6 +7,7 @@ import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 
 import { loginSchema, ILogin } from '../common/validation/auth';
 import { requireUnAuth } from '../common/requireUnAuth';
@@ -17,6 +18,7 @@ export const getServerSideProps = requireUnAuth(async (ctx) => {
 
 const Login: NextPage = () => {
 	const [signInError, setSignInError] = useState('');
+	const router = useRouter();
 
 	const {
 		register,
@@ -39,10 +41,12 @@ const Login: NextPage = () => {
 
 	const onSubmit = useCallback(async (data: ILogin) => {
 		const res = await signIn('credentials', {
-			...data,
+			callbackUrl: '/dashboard',
 			redirect: false,
+			...data,
 		}).then((res) => {
 			if (res?.error) setSignInError(res.error);
+			else router.push('/dashboard');
 		});
 	}, []);
 
@@ -111,9 +115,7 @@ const Login: NextPage = () => {
 									</p>
 								)}
 								{signInError && (
-									<p className='max-w-[200px] text-red-500'>
-										{signInError}
-									</p>
+									<p className='max-w-[200px] text-red-500'>{signInError}</p>
 								)}
 							</div>
 							<div className='flex flex-col gap-4 mt-8 justify-center items-center'>
