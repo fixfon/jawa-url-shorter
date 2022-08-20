@@ -8,12 +8,14 @@ type SidebarProps = {
 	status: 'authenticated' | 'loading' | 'unauthenticated';
 };
 
+// TODO - Do more styling on sidebar.
+
 const Sidebar: FunctionComponent<SidebarProps> = ({ session, status }) => {
 	const username = session?.user?.name;
 	const email = session?.user?.email;
 	return (
-		<div className='flex flex-col h-full w-1/6 min-w-fit px-4 justify-center items-center bg-red-400 border-r-4 border-solid border-blue-950'>
-			<div className='profile-banner flex flex-row gap-5 mt-4 justify-center items-center text-center before:content-[""] before:border before:border-solid before:border-blue-950 before:self-stretch'>
+		<div className='flex h-full w-1/6 min-w-fit flex-col items-center justify-center border-r-4 border-solid border-white bg-blue-920 px-4'>
+			<div className='profile-banner mt-4 flex flex-row items-center justify-center gap-5 text-center before:self-stretch before:border before:border-solid before:border-white before:content-[""]'>
 				<div className='profile-banner-image -order-1'>
 					<span>profileImage</span>
 				</div>
@@ -26,7 +28,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ session, status }) => {
 					)}
 				</div>
 			</div>
-			<div className='profile-menu flex flex-col gap-3 my-8'>
+			<div className='profile-menu my-8 flex flex-col gap-3'>
 				<Link href='/'>
 					<button type='button'>home</button>
 				</Link>

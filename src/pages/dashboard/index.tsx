@@ -1,26 +1,24 @@
-import type { NextPage } from 'next';
-import { Suspense } from 'react';
+import type { NextPage, InferGetServerSidePropsType } from 'next';
+import { Suspense, useEffect } from 'react';
 import Layout from '../../components/layout';
 import Sidebar from '../../components/dashboard/sidebar';
 import UrlList from '../../components/dashboard/urlList';
 
+import { requireAuth } from '../../common/requireAuth';
 import { useSession } from 'next-auth/react';
 
-import { requireAuth } from '../../common/requireAuth';
-
 export const getServerSideProps = requireAuth(async (ctx) => {
-	return { props: {} };
+	return {
+		props: {},
+	};
 });
 
 const Dashboard: NextPage = () => {
-	const { data: session, status } = useSession({
-		required: true,
-	});
-
+	const { data: session, status } = useSession();
 	return (
 		<Suspense>
 			<Layout>
-				<div className='flex flex-row justify-center items-center px-8'>
+				<div className='flex flex-row items-center justify-center px-8'>
 					<Sidebar session={session} status={status} />
 					{status === 'authenticated' && (
 						<UrlList session={session} status={status} />
