@@ -56,9 +56,11 @@ export const serverRouter = trpc
 		input: z.object({
 			userId: z.number(),
 			pageNumber: z.number(),
+			searchParam: z.string().nullish(),
 		}),
 		async resolve({ input, ctx }) {
 			const { userId, pageNumber } = input;
+			const searchParam = input.searchParam || undefined;
 			console.log('hittes getuser query', userId, pageNumber);
 			const slugs = await ctx.prisma.shortLink.findMany({
 				orderBy: {
@@ -67,7 +69,24 @@ export const serverRouter = trpc
 				take: 10,
 				skip: (pageNumber - 1) * 10,
 				where: {
-					creatorId: userId,
+					AND: [
+						{ creatorId: userId },
+
+						{
+							OR: [
+								{
+									slug: {
+										contains: searchParam,
+									},
+								},
+								{
+									url: {
+										contains: searchParam,
+									},
+								},
+							],
+						},
+					],
 				},
 			});
 
@@ -77,51 +96,55 @@ export const serverRouter = trpc
 	.query('getUserSlugCount', {
 		input: z.object({
 			userId: z.number(),
+			searchParam: z.string().nullish(),
 		}),
 		async resolve({ input, ctx }) {
-			const count = await ctx.prisma.user.findFirst({
+			const searchParam = input.searchParam || '';
+			const res = await ctx.prisma.user.findFirst({
 				where: {
-					id: input.userId,
+					AND: [
+						{ id: input.userId },
+						{
+							shortLinkIds: {
+								some: {
+									OR: [
+										{
+											slug: {
+												contains: searchParam,
+											},
+										},
+										{
+											url: {
+												contains: searchParam,
+											},
+										},
+									],
+								},
+							},
+						},
+					],
 				},
 				include: {
-					_count: {
-						select: {
-							shortLinkIds: true,
+					shortLinkIds: {
+						where: {
+							OR: [
+								{
+									slug: {
+										contains: searchParam,
+									},
+								},
+								{
+									url: {
+										contains: searchParam,
+									},
+								},
+							],
 						},
 					},
 				},
 			});
-			return { slugCount: count && count._count.shortLinkIds };
-		},
-	})
-	.query('searchInSlugs', {
-		input: z.object({
-			userId: z.number(),
-			search: z.string(),
-		}),
-		async resolve({ input, ctx }) {
-			const slugs = await ctx.prisma.shortLink.findMany({
-				where: {
-					OR: [
-						{
-							slug: {
-								contains: input.search,
-							},
-						},
-						{
-							url: {
-								contains: input.search,
-							},
-						},
-					],
-					creatorId: input.userId,
-				},
-				select: {
-					slug: true,
-					url: true,
-				},
-			});
-			return { slugs };
+
+			return { slugCount: res && res?.shortLinkIds.length };
 		},
 	})
 	.mutation('createSlug', {
@@ -141,6 +164,20 @@ export const serverRouter = trpc
 			} catch (error) {
 				console.log(error);
 			}
+		},
+	})
+	.mutation('deleteSlug', {
+		input: z.object({
+			slugId: z.number(),
+		}),
+		async resolve({ input, ctx }) {
+			console.log('Hitted deleteSlug mutation resolve [trpc].ts');
+			const { slugId } = input;
+			return await ctx.prisma.shortLink.delete({
+				where: {
+					id: slugId,
+				},
+			});
 		},
 	});
 

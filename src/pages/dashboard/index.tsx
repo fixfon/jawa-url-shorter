@@ -2,7 +2,7 @@ import type { NextPage, InferGetServerSidePropsType } from 'next';
 import { Suspense, useEffect } from 'react';
 import Layout from '../../components/layout';
 import Sidebar from '../../components/dashboard/sidebar';
-import UrlList from '../../components/dashboard/urlList';
+import UrlList from '../../components/dashboard/url-list';
 
 import { requireAuth } from '../../common/requireAuth';
 import { useSession } from 'next-auth/react';
@@ -18,7 +18,7 @@ const Dashboard: NextPage = () => {
 	return (
 		<Suspense>
 			<Layout>
-				<div className='flex flex-row items-center justify-center px-8'>
+				<div className='flex flex-row self-center items-center justify-center max-w-7xl w-full'>
 					<Sidebar session={session} status={status} />
 					{status === 'authenticated' && (
 						<UrlList session={session} status={status} />

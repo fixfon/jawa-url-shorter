@@ -3,11 +3,11 @@ import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import ContentLoader from 'react-content-loader';
 import { BiLinkExternal, BiChevronRight, BiChevronLeft } from 'react-icons/bi';
 import type { Session } from 'next-auth';
+import { debounce } from 'lodash';
+import type { ShortLink } from '@prisma/client';
+import Link from 'next/link';
 
 // TODO - Complete skeleton loading
-// TODO - Try useInfiniteQuery for pagination. We want to take max 10 results per page when page is changed. Default take first 10 results.
-// TODO - Do a search component dynamicyly based on the url or slug.
-// ? - useInfiniteQuery may cause problems on search component??? Solve this with another trpc query because we need to search that query in all database.
 
 type UrlListProps = {
 	session: Session;
@@ -43,26 +43,17 @@ const TableBodySkeleton = () => {
 };
 
 const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
-	const [displayedSlugs, setDisplayedSlugs] = useState({});
+	const [displayedSlugs, setDisplayedSlugs] = useState<ShortLink[]>([]);
+	const [searchParam, setSearchParam] = useState('');
 	const [slugCount, setSlugCount] = useState(0);
 	const [page, setPage] = useState(1);
 	const [maxPage, setMaxPage] = useState(1);
 
+	// Query for slug count of the authenticated user - searches the count with params if there is one
 	const slugCountQuery = trpc.useQuery(
-		['getUserSlugCount', { userId: Number(session.user.userId) }],
-		{
-			refetchOnReconnect: false,
-			refetchOnMount: false,
-			refetchOnWindowFocus: false,
-		}
-	);
-
-	const slugCountRefetch = slugCountQuery.refetch;
-
-	const displaySlugQuery = trpc.useQuery(
 		[
-			'getUserSlugsByPage',
-			{ userId: Number(session.user.userId), pageNumber: page },
+			'getUserSlugCount',
+			{ userId: Number(session.user.userId), searchParam: searchParam },
 		],
 		{
 			refetchOnReconnect: false,
@@ -70,9 +61,35 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 			refetchOnWindowFocus: false,
 		}
 	);
+	const slugCountRefetch = slugCountQuery.refetch; // Refetch the slug count query
 
-	const displaySlugRefetch = displaySlugQuery.refetch;
+	// Query for the slugs of the authenticated user - searches the slugs with params (if there is one) and returns a list
+	const displaySlugQuery = trpc.useQuery(
+		[
+			'getUserSlugsByPage',
+			{
+				userId: Number(session.user.userId),
+				pageNumber: page,
+				searchParam: searchParam,
+			},
+		],
+		{
+			refetchOnReconnect: false,
+			refetchOnMount: false,
+			refetchOnWindowFocus: false,
+		}
+	);
+	const displaySlugRefetch = displaySlugQuery.refetch; // Refetch the slug list query
 
+	// Delete slug mutation
+	const deleteSlugMutation = trpc.useMutation(['deleteSlug'], {
+		onSuccess: () => {
+			slugCountRefetch();
+			displaySlugRefetch();
+		},
+	});
+
+	// Could be a better way to set page, maxPage, displayed slug list other than keep calling with useEffect hook???
 	useEffect(() => {
 		console.log('hittes useEffect for slugcount status');
 		if (
@@ -80,6 +97,7 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 			slugCountQuery.data &&
 			slugCountQuery.data.slugCount != null
 		) {
+			console.log('slugCountQuery', slugCountQuery.data.slugCount);
 			setSlugCount(slugCountQuery.data.slugCount);
 			setMaxPage(Math.ceil(slugCountQuery.data.slugCount / 10));
 		}
@@ -89,14 +107,10 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 		console.log('hittes useEffect for displayslug status');
 		if (displaySlugQuery.isFetched && displaySlugQuery.data) {
 			console.log('hit if in useEffect for displayslug status');
-			setDisplayedSlugs(() => displaySlugQuery.data.slugs);
+			setDisplayedSlugs(displaySlugQuery.data.slugs);
 			console.log('useEffect queryslug', displaySlugQuery.data.slugs);
 		}
 	}, [displaySlugQuery.isFetched, displaySlugQuery.isRefetching]);
-
-	useEffect(() => {
-		console.log('useEffect displayedSlugs', displayedSlugs);
-	}, [displayedSlugs]);
 
 	const handlePrevPage = () => {
 		if (page <= 1) return;
@@ -110,23 +124,39 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 		displaySlugRefetch();
 	};
 
-	const handleSearch = (e) => {};
+	// Did I use the debounce function correctly?
+	const handleSearch = (e) => {
+		setSearchParam(e.target.value);
+		setPage(1);
+		debounce(displaySlugRefetch, 200);
+		debounce(slugCountRefetch, 200);
+	};
 
-	// useEffect(() => {
-	// 	console.log(displaySlugQuery.data);
-	// }, [page]);
+	const handleDeleteSlug = async (slugId: number) => {
+		deleteSlugMutation.mutate({ slugId });
+	};
 
 	return (
 		<div className='flex h-full w-full min-w-fit flex-col items-center justify-center overflow-hidden bg-blue-920 px-4'>
 			<h2 className='text-2xl'>your jawa! list</h2>
-			<div className='slugListBox my-4 mx-3 w-full p-4'>
+			<div className='slugListBox my-4 mx-3 flex w-full flex-col p-4'>
 				<div className='searchSlug'>
 					<input
 						type='text'
+						onChange={handleSearch}
 						placeholder={"search in your jawa!'s"}
 						className='my-1 block rounded-md border bg-white p-2 text-black placeholder-slate-400 shadow-sm focus:border-black focus:outline-none focus:ring-1 sm:text-sm'
 					/>
 				</div>
+
+				{deleteSlugMutation.error && (
+					<div className='slugError mt-6 w-fit self-center rounded border-2 border-solid border-red-700 bg-red-700 py-1 px-4 text-center'>
+						<p className='block font-semibold text-white'>
+							Something went wrong while deleting your slug! Try again later.
+						</p>
+					</div>
+				)}
+
 				<div className='slugTable'>
 					<table className='mt-6 w-full items-center text-center'>
 						<thead className='border-b-2'>
@@ -138,27 +168,33 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 								<th>action</th>
 							</tr>
 						</thead>
-						{/* {slugs.isLoading && <TableBodySkeleton />}
-						{slugs.isFetched && (
+						{(displaySlugQuery.isLoading || displaySlugQuery.isRefetching) && (
+							<TableBodySkeleton />
+						)}
+						{displaySlugQuery.isFetched && (
 							<tbody>
-								{slugs.data?.slugs[0].shortLinkIds.map((slugDetail, index) => (
+								{displayedSlugs.map((slugDetail, index) => (
 									<tr
 										key={index}
 										className='transition-colors hover:bg-blue-950'>
-										<td className='py-3'>{index + 1}</td>
-										<td className='py-3'>{slugDetail.slug}</td>
+										<td className='py-3'>{index + (page - 1) * 10 + 1}</td>
 										<td className='py-3'>
-											<a href={slugDetail.url} target='blank'>
-												{slugDetail.url} <BiLinkExternal className='inline' />
-												{''}
-											</a>
+											<Link href={'/' + slugDetail.slug} passHref>
+												<a target='_blank'>
+													{slugDetail.slug}
+													<BiLinkExternal className='inline ml-2' />
+												</a>
+											</Link>
 										</td>
+										<td className='py-3'>{slugDetail.url}</td>
 										<td className='py-3'>
-											{new Date(slugDetail.createdAt).toLocaleDateString()}
+											{slugDetail.createdAt &&
+												new Date(slugDetail.createdAt).toLocaleDateString()}
 										</td>
 										<td className='py-3'>
 											<button
 												type='button'
+												onClick={() => handleDeleteSlug(slugDetail.id)}
 												className='rounded bg-red-700 py-1 px-2.5 transition-colors hover:bg-red-500'>
 												delete
 											</button>
@@ -166,22 +202,17 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 									</tr>
 								))}
 							</tbody>
-						)} */}
+						)}
 					</table>
 				</div>
 				<div className='slugListFooter mt-8 flex justify-between px-4'>
-					{/* {slugQuery.isFetched && (
+					{displaySlugQuery.isFetched && (
 						<>
 							<span className='block'>
-								10 jawa!'s listed out of{' '}
-								{JSON.stringify(
-									slugQuery.data?.slugCount?.shortLinkIds,
-									null,
-									2
-								)}
+								10 jawa!'s listed out of {slugCount}
 							</span>
 						</>
-					)} */}
+					)}
 					<div className='flex items-center justify-center'>
 						<button
 							type='button'
