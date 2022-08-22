@@ -1,6 +1,6 @@
 import { trpc } from '../../common/client/trpc';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
-import ContentLoader from 'react-content-loader';
+import { ChangeEvent, FunctionComponent, useEffect, useState } from 'react';
+// import ContentLoader from 'react-content-loader';
 import { BiLinkExternal, BiChevronRight, BiChevronLeft } from 'react-icons/bi';
 import type { Session } from 'next-auth';
 import { debounce } from 'lodash';
@@ -120,7 +120,7 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 	};
 
 	// Did I use the debounce function correctly?
-	const handleSearch = (e) => {
+	const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
 		setSearchParam(e.target.value);
 		setPage(1);
 		debounce(displaySlugRefetch, 200);
@@ -206,7 +206,7 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 					{displaySlugQuery.isFetched && (
 						<>
 							<span className='block'>
-								10 jawa!'s listed out of {slugCount}
+								{`10 jawa!'s listed out of ${slugCount}`}
 							</span>
 						</>
 					)}
