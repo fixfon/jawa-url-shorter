@@ -43,19 +43,12 @@ export const nextAuthOptions: NextAuthOptions = {
 		}),
 	],
 	callbacks: {
-		// redirect: ({ url, baseUrl }) => {
-		// 	// Allows relative callback URLs
-		// 	if (url.startsWith('/')) return `${baseUrl}${url}`;
-		// 	// Allows callback URLs on the same origin
-		// 	else if (new URL(url).origin === baseUrl) return url;
-		// 	return baseUrl;
-		// },
+
 		jwt: async ({ token, user }) => {
 			if (user) {
 				token.id = user.id;
 				token.email = user.email;
 				token.name = user.name;
-				// console.log('jwt', token);
 			}
 
 			return token;
@@ -64,8 +57,6 @@ export const nextAuthOptions: NextAuthOptions = {
 			if (token) {
 				session.id = token.id;
 				session.user.userId = token.id;
-				// console.log('sesion', session);
-				// console.log('token', token);
 			}
 
 			return session;

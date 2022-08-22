@@ -12,7 +12,6 @@ type Form = {
 };
 
 const CreateLinkForm: NextPage = () => {
-	console.log('Hitted CreateLinkForm create-link.tsx');
 	// const [copied, setCopied] = useState(false);
 	const [form, setForm] = useState<Form>({ slug: '', url: '' });
 	const url = window.location.origin.split('//').slice(1) + '/';

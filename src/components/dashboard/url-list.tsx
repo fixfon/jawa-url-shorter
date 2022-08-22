@@ -91,24 +91,19 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 
 	// Could be a better way to set page, maxPage, displayed slug list other than keep calling with useEffect hook???
 	useEffect(() => {
-		console.log('hittes useEffect for slugcount status');
 		if (
 			slugCountQuery.isFetched &&
 			slugCountQuery.data &&
 			slugCountQuery.data.slugCount != null
 		) {
-			console.log('slugCountQuery', slugCountQuery.data.slugCount);
 			setSlugCount(slugCountQuery.data.slugCount);
 			setMaxPage(Math.ceil(slugCountQuery.data.slugCount / 10));
 		}
 	}, [slugCountQuery.isFetched, slugCountQuery.isRefetching]);
 
 	useEffect(() => {
-		console.log('hittes useEffect for displayslug status');
 		if (displaySlugQuery.isFetched && displaySlugQuery.data) {
-			console.log('hit if in useEffect for displayslug status');
 			setDisplayedSlugs(displaySlugQuery.data.slugs);
-			console.log('useEffect queryslug', displaySlugQuery.data.slugs);
 		}
 	}, [displaySlugQuery.isFetched, displaySlugQuery.isRefetching]);
 

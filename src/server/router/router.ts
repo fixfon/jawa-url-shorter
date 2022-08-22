@@ -92,7 +92,6 @@ export const serverRouter = trpc
 			slug: z.string(),
 		}),
 		async resolve({ input, ctx }) {
-			console.log('Hitted slugCheck query resolve [trpc].ts');
 			const { slug } = input;
 			if (['login', 'register', 'dashboard', 'admin'].includes(slug)) {
 				return {
@@ -116,7 +115,6 @@ export const serverRouter = trpc
 		async resolve({ input, ctx }) {
 			const { userId, pageNumber } = input;
 			const searchParam = input.searchParam || undefined;
-			console.log('hittes getuser query', userId, pageNumber);
 			const slugs = await ctx.prisma.shortLink.findMany({
 				orderBy: {
 					id: 'desc',
@@ -208,7 +206,7 @@ export const serverRouter = trpc
 			url: z.string(),
 		}),
 		async resolve({ input, ctx }) {
-			console.log('Hitted createSlug mutation resolve [trpc].ts');
+			console.log(ctx.session);
 			try {
 				await ctx.prisma.shortLink.create({
 					data: {
@@ -216,9 +214,7 @@ export const serverRouter = trpc
 						url: input.url,
 					},
 				});
-			} catch (error) {
-				console.log(error);
-			}
+			} catch (error) {}
 		},
 	})
 	.mutation('deleteSlug', {
@@ -226,7 +222,6 @@ export const serverRouter = trpc
 			slugId: z.number(),
 		}),
 		async resolve({ input, ctx }) {
-			console.log('Hitted deleteSlug mutation resolve [trpc].ts');
 			const { slugId } = input;
 			return await ctx.prisma.shortLink.delete({
 				where: {

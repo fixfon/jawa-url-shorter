@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '../../../server/db/client';
 
 const getURL = async (req: NextApiRequest, res: NextApiResponse) => {
-	console.log('Hitted getURL [slug].ts');
 	const slug = req.query['slug'];
 
 	if (!slug || typeof slug !== 'string') {

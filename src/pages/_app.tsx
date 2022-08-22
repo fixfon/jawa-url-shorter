@@ -6,7 +6,6 @@ import { withTRPC } from '@trpc/next';
 import { ServerRouter } from '../server/router/router';
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
-	console.log('Hitted MyApp _app.tsx');
 	return (
 		<>
 			<Head>
@@ -95,7 +94,6 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
 }
 
 function getBaseUrl() {
-	console.log('Hitted getBaseUrl _app.tsx');
 	if (process.browser) return '';
 	if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
 
@@ -104,7 +102,6 @@ function getBaseUrl() {
 
 export default withTRPC<ServerRouter>({
 	config({ ctx }) {
-		console.log('Hitted withTRPC config _app.tsx');
 		const url = `${getBaseUrl()}/api/trpc`;
 
 		return {
