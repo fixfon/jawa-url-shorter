@@ -6,6 +6,7 @@ import UrlList from '../../components/dashboard/url-list';
 
 import { requireAuth } from '../../common/requireAuth';
 import { useSession } from 'next-auth/react';
+import Head from 'next/head';
 
 export const getServerSideProps = requireAuth(async (ctx) => {
 	return {
@@ -21,6 +22,10 @@ const Dashboard: NextPage = (
 		<Suspense>
 			<Layout>
 				<div className='flex w-[calc(100%-50px)] flex-col-reverse items-center justify-center gap-6 self-center md:flex-row md:items-stretch xl:max-w-7xl'>
+					<Head>
+						<title>Dashboard | Jawa!</title>
+						<meta name='description' content='Jawa! Dashboard' />
+					</Head>
 					<Sidebar session={session} status={status} />
 					{status === 'authenticated' && (
 						<UrlList session={session} status={status} />

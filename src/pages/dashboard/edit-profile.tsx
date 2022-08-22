@@ -7,6 +7,7 @@ import EditProfileContainer from '../../components/dashboard/edit-profile';
 import { useSession } from 'next-auth/react';
 
 import { requireAuth } from '../../common/requireAuth';
+import Head from 'next/head';
 
 export const getServerSideProps = requireAuth(async (ctx) => {
 	return { props: {} };
@@ -22,6 +23,10 @@ const EditProfile: NextPage = (
 	return (
 		<Suspense>
 			<Layout>
+				<Head>
+					<title>Edit Profile | Jawa!</title>
+					<meta name='description' content='Jawa! Edit Profile' />
+				</Head>
 				<div className='flex w-[calc(100%-50px)] flex-col-reverse items-center justify-center gap-6 self-center md:flex-row md:items-stretch xl:max-w-7xl'>
 					<Sidebar session={session} status={status} />
 					<EditProfileContainer session={session} status={status} />
