@@ -126,7 +126,6 @@ const CreateLinkForm: NextPage = () => {
 				create
 			</button>
 		</form>
-		// TODO: add rules and show save links if login
 	);
 };
 

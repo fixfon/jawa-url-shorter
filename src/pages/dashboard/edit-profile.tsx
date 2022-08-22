@@ -8,8 +8,6 @@ import { useSession } from 'next-auth/react';
 
 import { requireAuth } from '../../common/requireAuth';
 
-// TODO add only password change here.
-
 export const getServerSideProps = requireAuth(async (ctx) => {
 	return { props: {} };
 });
@@ -24,7 +22,7 @@ const EditProfile: NextPage = (
 	return (
 		<Suspense>
 			<Layout>
-				<div className='flex w-full max-w-7xl flex-row items-center justify-center self-center'>
+				<div className='flex w-[calc(100%-50px)] flex-col-reverse items-center justify-center gap-6 self-center md:flex-row md:items-stretch xl:max-w-7xl'>
 					<Sidebar session={session} status={status} />
 					<EditProfileContainer session={session} status={status} />
 				</div>

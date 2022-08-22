@@ -4,11 +4,13 @@ import { useSession } from 'next-auth/react';
 const Header = () => {
 	const { status } = useSession();
 	return (
-		<div className='flex text-center items-center justify-between pl-20 pr-20 pt-10'>
+		<div className='flex items-center justify-between px-5 pt-10 text-center lg:px-20'>
 			<Link href='/'>
-				<span className='text-4xl font-bold text-white'>jawa!</span>
+				<button type='button' className='text-4xl font-bold text-white'>
+					jawa!
+				</button>
 			</Link>
-			<div className='text-xl font-semibold flex items-center justify-center gap-8'>
+			<div className='flex items-center justify-center gap-8 text-xl font-semibold'>
 				{status === 'unauthenticated' ? (
 					<>
 						<Link href='/login'>

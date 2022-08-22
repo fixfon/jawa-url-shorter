@@ -13,12 +13,14 @@ export const getServerSideProps = requireAuth(async (ctx) => {
 	};
 });
 
-const Dashboard: NextPage = () => {
+const Dashboard: NextPage = (
+	props: InferGetServerSidePropsType<typeof getServerSideProps>
+) => {
 	const { data: session, status } = useSession();
 	return (
 		<Suspense>
 			<Layout>
-				<div className='flex flex-row self-center items-center justify-center max-w-7xl w-full'>
+				<div className='flex w-[calc(100%-50px)] flex-col-reverse items-center justify-center gap-6 self-center md:flex-row md:items-stretch xl:max-w-7xl'>
 					<Sidebar session={session} status={status} />
 					{status === 'authenticated' && (
 						<UrlList session={session} status={status} />

@@ -16,6 +16,9 @@ module.exports = {
 					980: '#215F6E',
 				},
 			},
+			boxShadow: {
+				blueCustom: '6px 4px 19px 1px rgb(83, 179, 203, .5);',
+			},
 		},
 		fontFamily: {
 			allSite: ['Poppins', 'sans-serif'],

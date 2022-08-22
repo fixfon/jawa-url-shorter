@@ -9,13 +9,12 @@ type SidebarProps = {
 	status: 'authenticated' | 'loading' | 'unauthenticated';
 };
 
-// TODO - Do more styling on sidebar.
 
 const Sidebar: FunctionComponent<SidebarProps> = ({ session, status }) => {
 	const username = session?.user?.name;
 	const email = session?.user?.email;
 	return (
-		<div className='flex h-full w-1/6 min-w-fit flex-col gap-5 border-r-4 border-solid border-white bg-blue-920 px-4 py-[calc(100vh/10)] '>
+		<div className='flex w-1/6 min-w-fit flex-col gap-5 justify-self-stretch rounded-xl border-none bg-blue-920 px-4 py-[calc(100vh/10)] shadow-blueCustom'>
 			<div className='profile-banner mt-4 flex flex-row items-center justify-center gap-5 text-center before:self-stretch before:border before:border-solid before:border-white before:opacity-50 before:content-[""]'>
 				<div className='profile-banner-image -order-1'>
 					<span>

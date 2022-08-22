@@ -137,9 +137,9 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 	};
 
 	return (
-		<div className='flex h-full w-full min-w-fit flex-col items-center justify-center overflow-hidden bg-blue-920 px-4'>
-			<h2 className='text-2xl'>your jawa! list</h2>
-			<div className='slugListBox my-4 mx-3 flex w-full flex-col p-4'>
+		<div className='flex w-full min-w-fit flex-col items-center justify-center overflow-hidden rounded-xl bg-blue-920 shadow-blueCustom'>
+			<h2 className='pt-6 text-2xl'>your jawa! list</h2>
+			<div className='slugListBox mx-3 flex w-full flex-col p-4 pb-8'>
 				<div className='searchSlug'>
 					<input
 						type='text'
@@ -161,9 +161,9 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 					<table className='mt-6 w-full items-center text-center'>
 						<thead className='border-b-2'>
 							<tr>
-								<th>#</th>
+								<th className='hidden lg:block'>#</th>
 								<th>slug</th>
-								<th>url</th>
+								<th className='hidden lg:block'>url</th>
 								<th>created</th>
 								<th>action</th>
 							</tr>
@@ -177,16 +177,18 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 									<tr
 										key={index}
 										className='transition-colors hover:bg-blue-950'>
-										<td className='py-3'>{index + (page - 1) * 10 + 1}</td>
+										<td className='hidden py-3 lg:block'>
+											{index + (page - 1) * 10 + 1}
+										</td>
 										<td className='py-3'>
 											<Link href={'/' + slugDetail.slug} passHref>
 												<a target='_blank'>
 													{slugDetail.slug}
-													<BiLinkExternal className='inline ml-2' />
+													<BiLinkExternal className='ml-2 inline' />
 												</a>
 											</Link>
 										</td>
-										<td className='py-3'>{slugDetail.url}</td>
+										<td className='hidden py-3 lg:block'>{slugDetail.url}</td>
 										<td className='py-3'>
 											{slugDetail.createdAt &&
 												new Date(slugDetail.createdAt).toLocaleDateString()}
@@ -218,7 +220,11 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 							type='button'
 							className='pr-1 text-2xl'
 							onClick={handlePrevPage}
-							disabled={page <= 1}>
+							disabled={
+								page <= 1 ||
+								displaySlugQuery.isLoading ||
+								displaySlugQuery.isRefetching
+							}>
 							<BiChevronLeft />
 						</button>
 						<span>{page + '/' + maxPage}</span>
@@ -226,7 +232,11 @@ const UrlList: FunctionComponent<UrlListProps> = ({ session, status }) => {
 							type='button'
 							className='pl-1 text-2xl'
 							onClick={handleNextPage}
-							disabled={page == maxPage}>
+							disabled={
+								page == maxPage ||
+								displaySlugQuery.isLoading ||
+								displaySlugQuery.isRefetching
+							}>
 							<BiChevronRight />
 						</button>
 					</div>
