@@ -1,10 +1,9 @@
 import * as trpc from '@trpc/server';
-import { hash } from 'argon2';
+import { hash, verify } from 'argon2';
 import { z } from 'zod';
 
 import { Context } from './context';
 import { signUpSchema } from '../../common/validation/auth';
-// TODO: create a schema for slug links and exclude private routes from it
 
 export const serverRouter = trpc
 	.router<Context>()
@@ -38,15 +37,71 @@ export const serverRouter = trpc
 			};
 		},
 	})
+	.mutation('changePassword', {
+		input: z.object({
+			oldPassword: z.string(),
+			newPassword: z.string(),
+		}),
+		resolve: async ({ input, ctx }) => {
+			const { oldPassword, newPassword } = input;
+			const user = ctx.session?.user;
+			const userRes = await ctx.prisma.user.findFirst({
+				where: { username: user?.name! },
+			});
+
+			if (!userRes) {
+				throw new trpc.TRPCError({
+					code: 'NOT_FOUND',
+					message: 'User not found',
+				});
+			}
+
+			const isValidPassworod = await verify(userRes.password, oldPassword);
+
+			if (!isValidPassworod) {
+				throw new trpc.TRPCError({
+					code: 'CONFLICT',
+					message: 'Your current password is not correct.',
+				});
+			}
+
+			const samePassword = await verify(userRes.password, newPassword);
+
+			if (samePassword) {
+				throw new trpc.TRPCError({
+					code: 'CONFLICT',
+					message: 'Your new password is the same as your old password.',
+				});
+			}
+
+			const hashedPassword = await hash(newPassword);
+			const updatedUser = await ctx.prisma.user.update({
+				where: { id: userRes.id },
+				data: { password: hashedPassword },
+			});
+
+			return {
+				status: 201,
+				message: 'Password changed successfully',
+				result: updatedUser.id,
+			};
+		},
+	})
 	.query('slugCheck', {
 		input: z.object({
 			slug: z.string(),
 		}),
 		async resolve({ input, ctx }) {
 			console.log('Hitted slugCheck query resolve [trpc].ts');
+			const { slug } = input;
+			if (['login', 'register', 'dashboard', 'admin'].includes(slug)) {
+				return {
+					used: true,
+				};
+			}
 			const count = await ctx.prisma.shortLink.count({
 				where: {
-					slug: input.slug,
+					slug: slug,
 				},
 			});
 			return { used: count > 0 };
