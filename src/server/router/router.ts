@@ -98,7 +98,7 @@ export const serverRouter = trpc
 					used: true,
 				};
 			}
-			const count = await ctx.prisma.shortLink.count({
+			const count: number = await ctx.prisma.shortLink.count({
 				where: {
 					slug: slug,
 				},
@@ -206,12 +206,23 @@ export const serverRouter = trpc
 			url: z.string(),
 		}),
 		async resolve({ input, ctx }) {
-			console.log(ctx.session);
+			const count: number = await ctx.prisma.shortLink.count({
+				where: {
+					slug: input.slug,
+				},
+			});
+			if (count > 0) {
+				throw new trpc.TRPCError({
+					code: 'CONFLICT',
+					message: 'Slug already exists',
+				});
+			}
 			try {
 				await ctx.prisma.shortLink.create({
 					data: {
 						slug: input.slug,
 						url: input.url,
+						creatorId: Number(ctx.session?.user?.userId) || null,
 					},
 				});
 			} catch (error) {}

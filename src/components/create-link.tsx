@@ -40,11 +40,11 @@ const CreateLinkForm: NextPage = () => {
 		return (
 			<>
 				<h2 className='mb-4 text-xl'>copied to clipboard</h2>
-				<div className='flex justify-center items-center'>
+				<div className='flex items-center justify-center'>
 					<h1>{`https://${url}${form.slug}`}</h1>
 					<button
 						type='button'
-						className='rounded bg-blue-920 hover:bg-blue-950 py-1.5 px-1 font-semibold cursor-pointer ml-2 transition-colors duration-200'
+						className='ml-2 cursor-pointer rounded bg-blue-920 py-1.5 px-1 font-semibold transition-colors duration-200 hover:bg-blue-950'
 						onClick={() => {
 							// setCopied(true);
 							copy(`https://${url}${form.slug}`);
@@ -55,7 +55,7 @@ const CreateLinkForm: NextPage = () => {
 				<button
 					type='button'
 					value='Reset'
-					className='rounded bg-blue-920 hover:bg-blue-950 py-1.5 px-5 font-semibold cursor-pointer m-5 transition-colors duration-200'
+					className='m-5 cursor-pointer rounded bg-blue-920 py-1.5 px-5 font-semibold transition-colors duration-200 hover:bg-blue-950'
 					onClick={() => {
 						createSlug.reset();
 						setForm({ slug: '', url: '' });
@@ -70,10 +70,10 @@ const CreateLinkForm: NextPage = () => {
 		<form
 			onSubmit={(e) => {
 				e.preventDefault();
-				copy(`https://${url}${form.slug}`);
 				createSlug.mutate({ ...form });
+				copy(`https://${url}${form.slug}`);
 			}}
-			className='flex flex-col justify-center h-[75vh] sm:w-2/3 md:w-1/2 lg:w-1/3'>
+			className='flex h-[75vh] flex-col justify-center sm:w-2/3 md:w-1/2 lg:w-1/3'>
 			<div className='flex items-center justify-center'>
 				<input
 					type='url'
@@ -99,7 +99,7 @@ const CreateLinkForm: NextPage = () => {
 					required></input>
 				<button
 					type='button'
-					className='rounded bg-blue-920 py-1.5 px-1 font-semibold cursor-pointer ml-2 hover:bg-blue-950 transition-colors duration-200'
+					className='ml-2 cursor-pointer rounded bg-blue-920 py-1.5 px-1 font-semibold transition-colors duration-200 hover:bg-blue-950'
 					onClick={() => {
 						const slug = nanoid(10);
 						setForm({
@@ -111,15 +111,15 @@ const CreateLinkForm: NextPage = () => {
 					random
 				</button>
 			</div>
-			{slugCheck.data?.used && (
-				<span className='font-normal mt-2 text-center text-red-500'>
-					Slug already in use.
+			{(slugCheck.data?.used ) && (
+				<span className='mt-2 text-center font-normal text-red-500'>
+					slug already in use.
 				</span>
 			)}
 			<button
 				type='submit'
 				className={
-					'w-1/4 self-center mt-4 rounded bg-blue-920 p-2 font-semibold cursor-pointer  hover:bg-blue-950 transition-colors duration-200 disabled:bg-blue-980 disabled:cursor-not-allowed disabled:opacity-50'
+					'mt-4 w-1/4 cursor-pointer self-center rounded bg-blue-920 p-2 font-semibold  transition-colors duration-200 hover:bg-blue-950 disabled:cursor-not-allowed disabled:bg-blue-980 disabled:opacity-50'
 				}
 				disabled={slugCheck.isFetched && slugCheck.data!.used}>
 				create
