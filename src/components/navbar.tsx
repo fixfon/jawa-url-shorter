@@ -11,7 +11,7 @@ const Header = () => {
 				</button>
 			</Link>
 			<div className='flex items-center justify-center gap-8 text-xl font-semibold'>
-				{status === 'unauthenticated' ? (
+				{status === 'unauthenticated' || status === 'loading' ? (
 					<>
 						<Link href='/login'>
 							<button type='button'>login</button>
